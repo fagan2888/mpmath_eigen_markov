@@ -65,7 +65,7 @@ def stoch_eig(ctx, P, overwrite=False):
     probability distribution vector) of an irreducible stochastic matrix
     *P*, i.e., the solution to `x P = x`, normalized so that its 1-norm
     equals one. Internally, the routine passes the input to the
-    ``gth-solve`` routine.
+    ``gth_solve`` routine.
 
     Parameters
     ----------
