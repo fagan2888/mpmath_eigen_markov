@@ -8,7 +8,7 @@ mp.gth_solve = mp.mp.gth_solve
 
 import pytest
 
-VERBOSE=1
+VERBOSE = 1
 
 
 # Generate test cases
@@ -130,7 +130,9 @@ def run_gth_solve(A, verbose=0):
         print("||x| - 1| (gth_solve):", err1)
     assert err1 < eps
 
+
 #######################
+
 
 def test_stoch_eig_fixed_matrix():
     for P in Ps:
@@ -165,6 +167,66 @@ def test_gth_solve_randmatrix():
             A[i, i] = -mp.fsum((A[i, j] for j in range(N) if j != i))
 
         run_gth_solve(A, verbose=VERBOSE)
+
+
+def test_stoch_eig_high_prec():
+    n = 1e-100
+    with mp.workdps(100):
+        P = mp.matrix([[1-3*(mp.exp(n)-1), 3*(mp.exp(n)-1)],
+                       [mp.exp(n)-1      , 1-(mp.exp(n)-1)]])
+
+    run_stoch_eig(P, verbose=VERBOSE)
+
+
+def test_gth_solve_high_prec():
+    n = 1e-100
+    with mp.workdps(100):
+        P = mp.matrix([[-3*(mp.exp(n)-1), 3*(mp.exp(n)-1)],
+                       [mp.exp(n)-1     , -(mp.exp(n)-1) ]])
+
+    run_gth_solve(P, verbose=VERBOSE)
+
+
+def test_stoch_eig_fp():
+    P = mp.fp.matrix([[0.9 , 0.075, 0.025],
+                      [0.15, 0.8  , 0.05 ],
+                      [0.25, 0.25 , 0.5  ]])
+    x_expected = mp.fp.matrix([[0.625, 0.3125, 0.0625]])
+    x = mp.fp.stoch_eig(P)
+    eps = mp.exp(0.8 * mp.log(mp.eps))  # test_eigen.py
+    err0 = mp.norm(x-x_expected, p=1)
+    assert err0 < eps
+
+
+def test_gth_solve_fp():
+    P = mp.fp.matrix([[-0.1, 0.075, 0.025],
+                      [0.15, -0.2 , 0.05 ],
+                      [0.25, 0.25 , -0.5 ]])
+    x_expected = mp.fp.matrix([[0.625, 0.3125, 0.0625]])
+    x = mp.fp.gth_solve(P)
+    eps = mp.exp(0.8 * mp.log(mp.eps))  # test_eigen.py
+    err0 = mp.norm(x-x_expected, p=1)
+    assert err0 < eps
+
+
+def test_stoch_eig_iv():
+    P = mp.iv.matrix([[0.9 , 0.075, 0.025],
+                      [0.15, 0.8  , 0.05 ],
+                      [0.25, 0.25 , 0.5  ]])
+    x_expected = mp.matrix([[0.625, 0.3125, 0.0625]])
+    x_iv = mp.iv.stoch_eig(P)
+    for value, interval in zip(x_expected, x_iv):
+        assert value in interval
+
+
+def test_gth_solve_iv():
+    P = mp.iv.matrix([[-0.1, 0.075, 0.025],
+                      [0.15, -0.2 , 0.05 ],
+                      [0.25, 0.25 , -0.5 ]])
+    x_expected = mp.matrix([[0.625, 0.3125, 0.0625]])
+    x_iv = mp.iv.gth_solve(P)
+    for value, interval in zip(x_expected, x_iv):
+        assert value in interval
 
 
 if __name__ == '__main__':
