@@ -97,7 +97,7 @@ def stoch_eig(ctx, P, overwrite=False):
     # x P = x, or x (P - I) = 0, is just another name of the function
     # gth_solve, which solves x A = 0, where the GTH algorithm,
     # the algorithm used there, does not use the actual values of
-    # the diagnals of A, under the assumption that
+    # the diagonals of A, under the assumption that
     # A_{ii} = \sum_{j \neq i} A_{ij}, and therefore,
     # gth_solve(P-I) = gth_solve(P), so that it is irrelevant whether to
     # pass P or P - I to gth_solve.
